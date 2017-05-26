@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="bogapr">
+  <library name="bogapr1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../AI/bogapr/bogapr.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib/bogapr.jar" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
