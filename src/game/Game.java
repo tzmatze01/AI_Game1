@@ -20,22 +20,16 @@ public class Game extends Gameboard {
     private boolean stopCalculation;
     private int currentBest;
 
-    private Set<Integer> fields;
-
     private Move nextMove;
 
-    private boolean yieldY = true;
-    private boolean yieldX = true;
+    private final int DEPTH;
 
-
-    private final static int DEPTH = 3;
-
-    public Game(Stone color) {
+    public Game(Stone color, int depth) {
 
         this.color = color;
         this.stopCalculation = false;   
         this.currentBest = -99999;
-        this.fields = new HashSet<>();
+        this.DEPTH = depth;
 
         this.enemyColors = (this.color == Stone.RED) ? new Stone[]{Stone.BLUE, Stone.GREEN} :
                             (this.color == Stone.BLUE) ? new Stone[]{Stone.RED, Stone.GREEN} : new Stone[]{Stone.RED, Stone.BLUE};
@@ -54,18 +48,13 @@ public class Game extends Gameboard {
 
             Set<Integer> jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet);
 
-            System.out.println("for:"+stone+"got: ");
-
-            for(int i : jumpFields)
-                System.out.println(i);
-
             // iterate over all possible jumps for stone
             for(int field : jumpFields) {
 
-                // TODO alpha mtgeben
+                // TODO alpha mtgeben !
                 int moveScore = alphaBetaMAX(new Move(stone/100, stone%100, field/100, field%100), DEPTH, -9999, 9999);
 
-                System.out.println("moveScore from "+stone+" to "+field+" is: "+moveScore);
+                System.out.println("moveScore from "+stone+" to "+field+" for:"+getStoneColor()+" is: "+moveScore);
 
                 // if the value of the returned move is higher than the current, save the move
                 if(this.currentBest < moveScore) {
@@ -79,6 +68,8 @@ public class Game extends Gameboard {
             if(stopCalculation)
                 break;
         }
+        System.out.println("ended calculation, return move");
+
         return nextMove;
     }
 
@@ -86,12 +77,14 @@ public class Game extends Gameboard {
     // DONE : Moves are konsistent on gameboard
     private int alphaBetaMAX(Move move, int depth, int alpha, int beta) {
 
+        //System.out.println("MAX called with: "+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" depth:"+depth+" alpha:"+alpha+" beta:"+beta);
+
         // initialise value of node with minues infinity
         int value = -9999;
 
         if(depth == 0) {
             int xx = evaluate((move.toX * 100) + move.toY, true);
-            System.out.println(System.currentTimeMillis()+" value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" is "+xx);
+            //System.out.println(System.currentTimeMillis()+" value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" is "+xx);
             return xx;
         }
 
@@ -133,10 +126,15 @@ public class Game extends Gameboard {
 
                         Set<Integer> jfEnemy2 = generateFields(msEnemy2.get(s2).getSize(), e2StoneSet);
 
+                        int newDepth = depth - 1;
+
                         // iterate over every generated field to make a game tree
                         for (int jf2 : jfEnemy2) {
 
-                            int score = alphaBetaMIN(new Move(s2 / 100, s2 % 100, jf2 / 100, jf2 % 100), --depth, value, beta);
+
+                            int score = alphaBetaMIN(new Move(s2 / 100, s2 % 100, jf2 / 100, jf2 % 100), newDepth, value, beta);
+
+                            //System.out.println("MAX evaluate score:"+score+" > value:"+value);
 
                             if (score > value)
                                 value = score;
@@ -160,12 +158,15 @@ public class Game extends Gameboard {
 
     private int alphaBetaMIN(Move move, int depth, int alpha, int beta) {
 
+
+        //System.out.println("MIN called with: "+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" depth:"+depth+" alpha:"+alpha+" beta:"+beta);
+
         // initialise value of node with plus infinity
         int value = 9999;
 
         if(depth == 0) {
             int xx = evaluate((move.toX * 100) + move.toY, false);
-            System.out.println(System.currentTimeMillis()+" value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" is "+xx);
+            //System.out.println(System.currentTimeMillis()+" value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" is "+xx);
             return xx;
         }
 
@@ -187,10 +188,20 @@ public class Game extends Gameboard {
 
                 Set<Integer> jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet);
 
+
+                int newDepth = depth - 1;
+
                 // iterate over every generated field to make a game tree
                 for(int jumpField : jumpFields) {
 
-                    int score = alphaBetaMAX(new Move(stone/100, stone%100, jumpField/100, jumpField%100), --depth, alpha, value);
+                    // check if jumpField is occupied by full stack
+                    //if(this.getGameboard().get(field).getSize() < 3)
+
+
+
+                    int score = alphaBetaMAX(new Move(stone/100, stone%100, jumpField/100, jumpField%100), newDepth, alpha, value);
+
+                    //System.out.println("MIN evaluate score:"+score+" < value:"+value);
 
                     if(score < value)
                         value = score;
@@ -211,7 +222,7 @@ public class Game extends Gameboard {
 
 
          /*
-        Only the moves from the las iteration CAN be valid moves.
+        Only the moves from the last iteration CAN be valid moves.
         To filter out the invalid moves from the last iteration,
         the generated moves from the previous iterations must be removed from the result set.
          */
@@ -230,7 +241,7 @@ public class Game extends Gameboard {
             // only add where are no full stone stacks
             for (int field : tempFields) {
                 if(this.getGameboard().get(field) != null) {
-                    if(this.getGameboard().get(field).getSize() > 3);
+                    if(this.getGameboard().get(field).getSize() < 3)
                         moves.add(field);
                 }
                 else
@@ -303,7 +314,7 @@ public class Game extends Gameboard {
         // if ownField is negative, tmp get's negated, because we are in a MIN node
         if(ownField) tmp = tmp * -1;
 
-        System.out.println("************************************************** Evaluate called **************************************************");
+        //System.out.println("************************************************** Evaluate called **************************************************");
         return tmp;
     }
 

@@ -24,9 +24,9 @@ public class Gameboard {
     public synchronized void moveStone(Move move) {
 
 
-        System.out.println("\n\n"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY);
+        //System.out.println("\n\n"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY);
 
-        printGameboard();
+        //printGameboard();
 
         // TODO keine Berücksichtigung ob fromX valide ist
         Stone stone = this.gameboard.get((move.fromX*100)+move.fromY).removeTop();
@@ -46,9 +46,9 @@ public class Gameboard {
             this.gameboard.get((move.toX*100) + move.toY).addStone(stone);
 
 
-        System.out.println("--------------------------------------------------");
+        //System.out.println("--------------------------------------------------");
 
-        printGameboard();
+        //printGameboard();
     }
 
     public Map<Integer, StoneStack> getMovableStonesForColor(Stone color) {
@@ -91,6 +91,9 @@ public class Gameboard {
             sum += gameboard.get(key).getSize();
         }
         System.out.println(sum);
+
+        if(sum != 27)
+            throw new ArrayIndexOutOfBoundsException();
     }
 
     protected Map<Integer, StoneStack> getGameboard() {
@@ -125,7 +128,7 @@ public class Gameboard {
         newGameboard.put(206, green2);
         newGameboard.put(5, green3);
 
-        newGameboard.put(1005, blue1);
+        newGameboard.put(1006, blue1);
         newGameboard.put(1106, blue2);
         newGameboard.put(1005, blue3);
 
