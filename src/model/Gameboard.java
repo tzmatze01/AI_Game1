@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by matthiasdaiber on 09.05.17.
+ * Created by Matthias Daiber & Felix Schwanke on 09.05.17.
  */
 public class Gameboard {
 
@@ -78,6 +78,7 @@ public class Gameboard {
 
         return this.gameboard.get(field).getTopColor();
     }
+
     protected void printGameboard() {
 
         int sum = 0;
@@ -97,9 +98,12 @@ public class Gameboard {
     }
 
     protected Map<Integer, StoneStack> getGameboard() {
+
         return this.gameboard;
     }
+
     protected void setGameboard(Map<Integer, StoneStack> gameboard) {
+
         this.gameboard = gameboard;
     }
 

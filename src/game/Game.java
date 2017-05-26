@@ -5,13 +5,12 @@ import model.Gameboard;
 import model.Stone;
 import model.StoneStack;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by matthiasdaiber on 12.05.17.
+ * Created by Matthias Daiber & Felix Schwanke on 12.05.17.
  */
 public class Game extends Gameboard {
 
@@ -51,10 +50,10 @@ public class Game extends Gameboard {
             // iterate over all possible jumps for stone
             for(int field : jumpFields) {
 
-                // TODO alpha mtgeben !
+                // TODO alpha mitgeben !
                 int moveScore = alphaBetaMAX(new Move(stone/100, stone%100, field/100, field%100), DEPTH, -9999, 9999);
 
-                System.out.println("moveScore from "+stone+" to "+field+" for:"+getStoneColor()+" is: "+moveScore);
+                System.out.println("moveScore from " + stone + " to " + field + " for:" + getStoneColor() + " is: " + moveScore);
 
                 // if the value of the returned move is higher than the current, save the move
                 if(this.currentBest < moveScore) {
@@ -175,7 +174,7 @@ public class Game extends Gameboard {
             // persist given move to gameboard
             moveStone(move);
 
-            // TODO could be problematic if sotrage does not get overqwritten?
+            // TODO could be problematic if storage does not get overwritten?
 
             // TODO last moved stone is missing
             // generate all possible jumps
@@ -219,7 +218,6 @@ public class Game extends Gameboard {
     }
 
     public Set<Integer> generateFields(int depth, Set<Integer> moves) {
-
 
          /*
         Only the moves from the last iteration CAN be valid moves.

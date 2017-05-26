@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Created by matthiasdaiber on 10.04.17.
+ * Created by Matthias Daiber & Felix Schwanke on 10.04.17.
  */
 public enum Stone {
 

@@ -1,10 +1,12 @@
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import game.Game;
 import lenz.htw.bogapr.Move;
 import lenz.htw.bogapr.net.NetworkClient;
+import model.Player;
 import model.Stone;
 
 import javax.imageio.ImageIO;
@@ -16,23 +18,28 @@ public class Main {
 
     public static void main(String args[]) throws InterruptedException {
 
-        // java -Djava.library.path=lib/native -jar bogapr.jar
-
-        /*
-        Game game = new Game(Stone.RED, 3);
-        game.moveStone(new Move(0,1, 0, 4));
-
-        long start = System.currentTimeMillis();
-
-        Move move = game.calculateBestMove();
-
-
-        System.out.println("in "+(System.currentTimeMillis()-start)/1000+" s has value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY);
-        */
-
-
         try {
-            NetworkClient networkClient = new NetworkClient(null, "PLAYER", ImageIO.read(new File("meinLogo.png")));
+            String hostName = "localhost";
+            String playerName = "Player";
+            BufferedImage playerImage = ImageIO.read(new File("meinLogo.png"));
+
+            for (int i = 1; i <= 3; i++) {
+                playerName = playerName + " " + i;
+                Player player = new Player(hostName, playerName, playerImage);
+                Thread playerThread = new Thread(player);
+                playerThread.start();
+            }
+
+        }
+        catch(IOException exc) {
+
+        }
+
+
+        // java -Djava.library.path=lib/native -jar bogapr.jar
+        /*
+        try {
+            NetworkClient networkClient = new NetworkClient(null, "PLAYER 3", ImageIO.read(new File("meinLogo.png")));
 
             int networkLateny = networkClient.getExpectedNetworkLatencyInMilliseconds();
             int timeLimit = networkClient.getTimeLimitInSeconds();
@@ -82,7 +89,7 @@ public class Main {
 
             timeThread.interrupt();
 
-            System.out.println("Stone color is: "+game.getStoneColor());
+            System.out.println("Stone color is: " + game.getStoneColor());
 
             for (; ; ) {
                 Move receiveMove;
@@ -95,8 +102,8 @@ public class Main {
                     game.moveStone(receiveMove);
                 }
 
-
                 timeThread.start();
+
 
             }
 
@@ -105,5 +112,6 @@ public class Main {
             System.out.println(e);
             throw new RuntimeException("Connection ended!", e);
         }
+        **/
     }
 }
