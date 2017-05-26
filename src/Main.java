@@ -38,8 +38,6 @@ public class Main {
             int timeLimit = networkClient.getTimeLimitInSeconds();
             int playerNumber = networkClient.getMyPlayerNumber();
 
-
-            // TODO: fix order of playernumber -> stone color
             Stone playerColor = (playerNumber == 0) ? Stone.RED :
                                 (playerNumber == 1) ? Stone.GREEN : Stone.BLUE;
 
@@ -47,10 +45,6 @@ public class Main {
             long sleepTime = (timeLimit*1000)-(networkLateny*2);
 
             System.out.println("sleeptime: "+sleepTime);
-
-            long startTime = 0;
-            long endTime = 0;
-
 
 
             Thread timeThread = new Thread () {
@@ -71,7 +65,7 @@ public class Main {
                         e.printStackTrace();
                     }
                     finally {
-                        /*
+
                         System.out.println("Retrieve solution from Game");
                         Move move = game.getNextMove();
                         System.out.println("sending from: "+move.fromX+" "+move.fromY+" to: "+move.toX+" "+move.toY);
@@ -80,7 +74,6 @@ public class Main {
 
                         // persist move to gameboard
                         game.moveStone(move);
-                        */
                     }
 
                     
@@ -103,11 +96,7 @@ public class Main {
                 }
 
 
-                startTime = System.currentTimeMillis();
-
                 timeThread.start();
-
-
 
             }
 
@@ -117,12 +106,4 @@ public class Main {
             throw new RuntimeException("Connection ended!", e);
         }
     }
-
-        /*
-        TODO:
-
-        Bewertungfkt.
-        Spielbaum Züge: Gegnerzug darf zweimal ziehen, dan zwei Gegner - in Spielbaum nur ein Gegner
-        Zeitabfrage - Threads
-         */
 }
