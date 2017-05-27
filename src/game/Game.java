@@ -45,25 +45,39 @@ public class Game extends Gameboard {
             Set<Integer> stoneSet = new HashSet<>();
             stoneSet.add(stone);
 
-            Set<Integer> jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet);
+            Set<Integer> jumpFields = null;
+            try {
+                System.out.println("Movable stones size: " + movableStones.size());
+                jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet); //????
+            }
+            catch (StackOverflowError exc) {
+                exc.printStackTrace();
+            }
+
+            if (jumpFields == null) {
+                System.out.println("ERROR: jumpFields ist null");
+            }
 
             // iterate over all possible jumps for stone
-            for(int field : jumpFields) {
+            if (jumpFields != null) {
+                for (int field : jumpFields) {
 
-                // TODO alpha mitgeben !
-                int moveScore = alphaBetaMAX(new Move(stone/100, stone%100, field/100, field%100), DEPTH, -9999, 9999);
+                    // TODO alpha mitgeben !
+                    int moveScore = alphaBetaMAX(new Move(stone / 100, stone % 100, field / 100, field % 100), DEPTH, -9999, 9999);
 
-                System.out.println("moveScore from " + stone + " to " + field + " for:" + getStoneColor() + " is: " + moveScore);
+                    System.out.println("moveScore from " + stone + " to " + field + " for:" + getStoneColor() + " is: " + moveScore);
 
-                // if the value of the returned move is higher than the current, save the move
-                if(this.currentBest < moveScore) {
-                    this.currentBest = moveScore;
-                    this.nextMove = new Move(stone/100, stone%100, field/100, field%100);
+                    // if the value of the returned move is higher than the current, save the move
+                    if (this.currentBest < moveScore) {
+                        this.currentBest = moveScore;
+                        this.nextMove = new Move(stone / 100, stone % 100, field / 100, field % 100);
+                    }
+
+                    if (stopCalculation)
+                        break;
                 }
-
-                if(stopCalculation)
-                    break;
             }
+
             if(stopCalculation)
                 break;
         }
@@ -95,7 +109,7 @@ public class Game extends Gameboard {
             // persist given move to gameboard
             moveStone(move);
 
-            // TODO could be problematic if sotrage does not get overqwritten?
+            // TODO could be problematic if storage does not get overwritten?
             // generate all possible jumps for enemy 1
             Map<Integer, StoneStack> msEnemy1 = getMovableStonesForColor(enemyColors[0]);
 
@@ -104,47 +118,67 @@ public class Game extends Gameboard {
                 Set<Integer> e1StoneSet = new HashSet<>();
                 e1StoneSet.add(s1);
 
-                Set<Integer> jfEnemy1 = generateFields(msEnemy1.get(s1).getSize(), e1StoneSet);
+                Set<Integer> jfEnemy1 = null;
 
-                // iterate over every generated field to make a game tree
-                for (int jf1 : jfEnemy1) {
+                try {
 
-                    // -----------------------------------------------------------------------------------------------------------------------
-                    // Enemy 2
+                    jfEnemy1 = generateFields(msEnemy1.get(s1).getSize(), e1StoneSet);
+                }
+                catch (StackOverflowError exc) {
+                    exc.printStackTrace();
+                }
 
-                    // persist given move to gameboard
-                    moveStone(new Move(s1 / 100, s1 % 100, jf1 / 100, jf1 % 100));
+                if (jfEnemy1 != null) {
 
-                    // generate all possible jumps for enemy 2
-                    Map<Integer, StoneStack> msEnemy2 = getMovableStonesForColor(enemyColors[1]);
+                    // iterate over every generated field to make a game tree
+                    for (int jf1 : jfEnemy1) {
 
-                    for (int s2 : msEnemy2.keySet()) {
+                        // -----------------------------------------------------------------------------------------------------------------------
+                        // Enemy 2
 
-                        Set<Integer> e2StoneSet = new HashSet<>();
-                        e2StoneSet.add(s2);
+                        // persist given move to gameboard
+                        moveStone(new Move(s1 / 100, s1 % 100, jf1 / 100, jf1 % 100));
 
-                        Set<Integer> jfEnemy2 = generateFields(msEnemy2.get(s2).getSize(), e2StoneSet);
+                        // generate all possible jumps for enemy 2
+                        Map<Integer, StoneStack> msEnemy2 = getMovableStonesForColor(enemyColors[1]);
 
-                        int newDepth = depth - 1;
+                        for (int s2 : msEnemy2.keySet()) {
 
-                        // iterate over every generated field to make a game tree
-                        for (int jf2 : jfEnemy2) {
+                            Set<Integer> e2StoneSet = new HashSet<>();
+                            e2StoneSet.add(s2);
+
+                            Set<Integer> jfEnemy2 = null;
+                            try {
+
+                                jfEnemy2 = generateFields(msEnemy2.get(s2).getSize(), e2StoneSet);
+                            } catch (StackOverflowError exc) {
+                                exc.printStackTrace();
+                            }
+
+                            if (jfEnemy2 != null) {
+
+                                int newDepth = depth - 1;
+
+                                // iterate over every generated field to make a game tree
+                                for (int jf2 : jfEnemy2) {
 
 
-                            int score = alphaBetaMIN(new Move(s2 / 100, s2 % 100, jf2 / 100, jf2 % 100), newDepth, value, beta);
+                                    int score = alphaBetaMIN(new Move(s2 / 100, s2 % 100, jf2 / 100, jf2 % 100), newDepth, value, beta);
 
-                            //System.out.println("MAX evaluate score:"+score+" > value:"+value);
+                                    //System.out.println("MAX evaluate score:"+score+" > value:"+value);
 
-                            if (score > value)
-                                value = score;
+                                    if (score > value)
+                                        value = score;
 
-                            // pruning - stop calculation if value is greater than beta
-                            if (value > beta)
-                                break;
+                                    // pruning - stop calculation if value is greater than beta
+                                    if (value > beta)
+                                        break;
+                                }
+                            }
                         }
+                        // undo my own move on gameboard for enemy 2
+                        moveStone(new Move(jf1 / 100, jf1 % 100, s1 / 100, s1 % 100));
                     }
-                    // undo my own move on gameboard for enemy 2
-                    moveStone(new Move(jf1 / 100, jf1 % 100, s1 / 100, s1 % 100));
                 }
             }
 
@@ -157,18 +191,13 @@ public class Game extends Gameboard {
 
     private int alphaBetaMIN(Move move, int depth, int alpha, int beta) {
 
-
-        //System.out.println("MIN called with: "+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" depth:"+depth+" alpha:"+alpha+" beta:"+beta);
-
         // initialise value of node with plus infinity
         int value = 9999;
 
-        if(depth == 0) {
+        if(depth <= 0) {
             int xx = evaluate((move.toX * 100) + move.toY, false);
-            //System.out.println(System.currentTimeMillis()+" value of:"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY+" is "+xx);
             return xx;
         }
-
         else {
 
             // persist given move to gameboard
@@ -187,7 +216,6 @@ public class Game extends Gameboard {
 
                 Set<Integer> jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet);
 
-
                 int newDepth = depth - 1;
 
                 // iterate over every generated field to make a game tree
@@ -196,11 +224,7 @@ public class Game extends Gameboard {
                     // check if jumpField is occupied by full stack
                     //if(this.getGameboard().get(field).getSize() < 3)
 
-
-
                     int score = alphaBetaMAX(new Move(stone/100, stone%100, jumpField/100, jumpField%100), newDepth, alpha, value);
-
-                    //System.out.println("MIN evaluate score:"+score+" < value:"+value);
 
                     if(score < value)
                         value = score;
@@ -227,7 +251,7 @@ public class Game extends Gameboard {
 
         Set<Integer> tempFields = new HashSet<>();
 
-        if(depth == 1) {
+        if(depth <= 1) {
 
             for(int move : moves)
                 tempFields.addAll(getNeighborFields(move));
@@ -262,9 +286,6 @@ public class Game extends Gameboard {
 
     // look at surrounding fields and evaluate field with this
     public int evaluate(int playerField, boolean ownField) {
-
-
-        // TODO eigene sprungweite
 
          /*
          Value of fields
@@ -312,7 +333,6 @@ public class Game extends Gameboard {
         // if ownField is negative, tmp get's negated, because we are in a MIN node
         if(ownField) tmp = tmp * -1;
 
-        //System.out.println("************************************************** Evaluate called **************************************************");
         return tmp;
     }
 
@@ -366,7 +386,7 @@ public class Game extends Gameboard {
 
     }
 
-    // TODO check if hard coded goals are reasonable 
+    // TODO check if hard coded goals are reasonable
     private boolean isGoal(int field) {
 
         int x = field / 100;

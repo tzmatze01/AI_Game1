@@ -12,7 +12,6 @@ public class Gameboard {
 
     // TODO internal representation of occupied fields, to decrease computation time
 
-
     // Für Bericht: beschreiben wie es zu dieser Struktur kam,
     private Map<Integer, StoneStack> gameboard;
 
@@ -22,11 +21,6 @@ public class Gameboard {
     }
 
     public synchronized void moveStone(Move move) {
-
-
-        //System.out.println("\n\n"+move.fromX+":"+move.fromY+" -> "+move.toX+":"+move.toY);
-
-        //printGameboard();
 
         // TODO keine Berücksichtigung ob fromX valide ist
         Stone stone = this.gameboard.get((move.fromX*100)+move.fromY).removeTop();
@@ -45,10 +39,6 @@ public class Gameboard {
         else
             this.gameboard.get((move.toX*100) + move.toY).addStone(stone);
 
-
-        //System.out.println("--------------------------------------------------");
-
-        //printGameboard();
     }
 
     public Map<Integer, StoneStack> getMovableStonesForColor(Stone color) {
