@@ -57,13 +57,20 @@ public class Player extends Observable implements Runnable {
 
                     //Zug in meine Brettrepräsentation einarbeiten
                     game.moveStone(receiveMove);
+
+                    System.out.println("for color: "+playerColor+" persisted enemy move:\n");
+                    game.printGameboard();
+
                 }
 
                 makeMove = game.calculateBestMove();
                 networkClient.sendMove(makeMove);
 
                 // persist move to gameboard
-                game.moveStone(makeMove);
+                //game.moveStone(makeMove);
+
+                System.out.println("for color: "+playerColor+" gameboard:\n");
+                game.printGameboard();
 
             }
             catch (RuntimeException ex) {
@@ -76,5 +83,9 @@ public class Player extends Observable implements Runnable {
 
         setChanged();
         notifyObservers();
+
+
+
+        // TODO stonestack size != jumplength in secod move
     }
 }

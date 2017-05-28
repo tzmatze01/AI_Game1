@@ -48,6 +48,7 @@ public class Game extends Gameboard {
             Set<Integer> jumpFields = null;
             try {
                 System.out.println("Movable stones size: " + movableStones.size());
+                System.out.println("For stack:"+stone+" jumplength is: "+movableStones.get(stone).getSize()+" content: "+movableStones.get(stone).toString());
                 jumpFields = generateFields(movableStones.get(stone).getSize(), stoneSet); //????
             }
             catch (StackOverflowError exc) {
@@ -81,7 +82,10 @@ public class Game extends Gameboard {
             if(stopCalculation)
                 break;
         }
-        System.out.println("ended calculation, return move");
+        System.out.println("ended calculation, return move: "+ nextMove.fromX+":"+nextMove.fromY+" -> "+nextMove.toX+":"+nextMove.toY);
+
+
+        this.currentBest = -99999;
 
         return nextMove;
     }
